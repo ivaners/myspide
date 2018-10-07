@@ -9,10 +9,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * 线程池、异步任务、定时调度相关配置
- *
- * @author zifangsky
- * @date 2018/6/21
- * @since 1.0.0
  */
 @Configuration
 @EnableAsync

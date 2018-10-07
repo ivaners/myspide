@@ -1,10 +1,12 @@
 package tk.ivanlily.task;
 
+import org.springframework.beans.factory.annotation.Value;
 import tk.ivanlily.manager.CrawlManager;
 import tk.ivanlily.manager.ProxyIpManager;
 import tk.ivanlily.mapper.ProxyIpMapper;
 import tk.ivanlily.model.ProxyIp;
 import tk.ivanlily.model.bo.ProxyIpBO;
+import tk.ivanlily.mq.producer.CheckIPSender;
 import tk.ivanlily.spider.CheckIPUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,13 @@ public class ScheduledTasks {
     @Autowired
     protected ProxyIpMapper proxyIpMapper;
 
+    @Resource(name="checkIPSender")
+    private CheckIPSender checkIPSender;
+
+    @Value("${mq.topicName.checkIP}")
+    private String checkIPTopicName;
+
+
     /**
      * 代理IP定时检测任务（检查是否有效）
      * @author zifangsky
@@ -67,6 +76,9 @@ public class ScheduledTasks {
                 proxyIpBO.setAddr(proxyIp.getAddr());
                 proxyIpBO.setUsed(proxyIp.getUsed());
                 proxyIpBO.setOther(proxyIp.getOther());
+                proxyIpBO.setCheckType(ProxyIpBO.CheckIPType.UPDATE);
+
+                checkIPSender.send(checkIPTopicName, proxyIpBO);
                 if (!CheckIPUtils.checkValidIP(proxyIpBO.getIp(), proxyIpBO.getPort())) {
                     proxyIpManager.deleteByPrimaryKey(proxyIpBO.getId());
                 }

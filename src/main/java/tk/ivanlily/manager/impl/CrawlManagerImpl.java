@@ -31,7 +31,8 @@ public class CrawlManagerImpl implements CrawlManager {
 	
 	@Override
 	public void proxyIPCrawl() {
-		OOSpider.create(new ProxyIPSpider()).setDownloader(proxy())
+		OOSpider.create(new ProxyIPSpider())
+				//.setDownloader(proxy())
 		.addUrl("http://www.xicidaili.com/nn/1").addPipeline(proxyIPPipeline)
 		.thread(3)
 		.run();
@@ -39,7 +40,8 @@ public class CrawlManagerImpl implements CrawlManager {
 
 	@Override
 	public void proxyIPCrawl2() {
-		OOSpider.create(new ProxyIPSpider2()).setDownloader(proxy())
+		OOSpider.create(new ProxyIPSpider2())
+				//.setDownloader(proxy())
 		.addUrl("http://www.kuaidaili.com/free/inha/1/").addPipeline(proxyIPPipeline)
 		.thread(2)
 		.run();

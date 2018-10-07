@@ -1,14 +1,17 @@
 package tk.ivanlily.spider;
 
+import org.springframework.beans.factory.annotation.Value;
 import tk.ivanlily.manager.ProxyIpManager;
 import tk.ivanlily.model.ProxyIp;
 import tk.ivanlily.model.bo.ProxyIpBO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import tk.ivanlily.mq.producer.CheckIPSender;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -18,8 +21,15 @@ import java.util.List;
  */
 @Component("proxyIPPipeline")
 public class ProxyIPPipeline implements Pipeline {
+	@Resource(name="checkIPSender")
+	private CheckIPSender checkIPSender;
+
 	@Autowired
 	private ProxyIpManager proxyIpManager;
+
+	@Value("${mq.topicName.checkIP}")
+	private String checkIPTopicName;
+
 
 	/**
 	 * 保存数据
@@ -38,16 +48,10 @@ public class ProxyIPPipeline implements Pipeline {
 				proxyIpBO.setAddr(proxyIp.getAddr());
 				proxyIpBO.setUsed(proxyIp.getUsed());
 				proxyIpBO.setOther(proxyIp.getOther());
-				if (CheckIPUtils.checkValidIP(proxyIpBO.getIp(), proxyIpBO.getPort())) {
-					// 1 查询该IP是否已存在
-					ProxyIp oldIP = proxyIpManager.selectByIPPort(proxyIpBO.getIp(), proxyIpBO.getPort());
+				proxyIpBO.setCheckType(ProxyIpBO.CheckIPType.ADD);
 
-					// 2如果不存在则插入数据
-					if (oldIP == null) {
-						proxyIpBO.setUsed(false);
-						proxyIpManager.insertSelective(proxyIpBO);
-					}
-				}
+				//检测任务添加到队列中
+				checkIPSender.send(checkIPTopicName, proxyIpBO);
 			});
 		}
 

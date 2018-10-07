@@ -1,16 +1,4 @@
 /*
-Navicat MySQL Data Transfer
-
-Source Server         : local
-Source Server Version : 50720
-Source Host           : localhost:3306
-Source Database       : spider
-
-Target Server Type    : MYSQL
-Target Server Version : 50720
-File Encoding         : 65001
-
-Date: 2018-06-21 16:14:33
 */
 
 SET FOREIGN_KEY_CHECKS=0;
